@@ -4,10 +4,12 @@
 @plugin "daisyui/theme" {
   name: "light";
   default: true;
-  --color-primary: #5BA602;
-  --color-secondary: #03373d;
-  --color-base-content: #ffffff; /* white */
+  --color-primary: #69C5D3;
+  --color-secondary: #CDE422;
+  --color-base-content: #000000; /* black */
+   /* custom white color */
+  --color-white: #ffffff;
   /* Optional for nicer look */
-  --color-neutral: #4b5563; /* btn-neutral */
+  --color-neutral: #EF2853; /* btn-neutral */
   --color-accent: #a3e635;  /* btn-accent */
 }
