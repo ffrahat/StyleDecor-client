@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
+import AuthContext from '../../../Context/AuthContext';
 
 const Login = () => {
+
     return (
         <div className='mb-5 pb-5 md:pb-0 md:m-0' >
             <div className='space-y-2 text-center'>
