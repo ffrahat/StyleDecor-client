@@ -5,6 +5,8 @@ import Home from '../Pages/Home/Home';
 import Login from '../Pages/Auth/Login/Login';
 import AuthLayout from '../Layouts/AuthLayout';
 import SignUp from '../Pages/Auth/SignUp/SignUp';
+import Test from '../Test/Test';
+import ScreenLoading from '../Components/Animation/ScreenLoading/ScreenLoading';
 
 
 
@@ -12,11 +14,16 @@ const router = createBrowserRouter([
     {
         path: '/',
         Component: MainLayout,
+        hydrateFallbackElement: <ScreenLoading />,
         children: [
             {
                 index: true,
                 Component: Home
             },
+            {
+                path: 'test',
+                Component: Test
+            }
         ]
     },
     {
