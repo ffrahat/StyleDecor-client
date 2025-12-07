@@ -2,7 +2,7 @@ import React from 'react';
 
 const MySection = ({children}) => {
     return (
-        <section className='my-5 py-5'>
+        <section className='my-5 py-5 '>
             {children}
         </section>
     );

@@ -8,6 +8,9 @@ import SignUp from '../Pages/Auth/SignUp/SignUp';
 import Test from '../Test/Test';
 import ScreenLoading from '../Components/Animation/ScreenLoading/ScreenLoading';
 import Services from '../Pages/Services/Services';
+import ServiceDetails from '../Pages/Services/ServiceDetails';
+import PrivateRouter from './PrivateRouter';
+import BookService from '../Pages/Services/BookService';
 
 
 
@@ -28,6 +31,14 @@ const router = createBrowserRouter([
             {
                 path: 'services',
                 Component: Services
+            },
+            {
+                path: '/service-details/:id',
+                Component: ServiceDetails
+            },
+            {
+                path: '/book-service/:id',
+                element: <PrivateRouter><BookService /></PrivateRouter>
             }
         ]
     },
