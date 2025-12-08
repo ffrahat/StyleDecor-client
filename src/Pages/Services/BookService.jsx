@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import useAxiosInstance from '../../Hooks/useAxiosInstance';
 import { useQuery } from '@tanstack/react-query';
 import MySection from '../../Layouts/MySection';
@@ -7,13 +7,12 @@ import MyContainer from '../../Layouts/MyContainer';
 import { useForm } from 'react-hook-form';
 import useAuth from '../../Hooks/useAuth';
 import ScreenLoading from '../../Components/Animation/ScreenLoading/ScreenLoading';
-import PrimaryBtn from '../../Components/UI/PrimaryBtn/primaryBtn';
-import TransparentBtn from '../../Components/UI/TransparentBtn/TransparentBtn';
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 
 const BookService = () => {
     const { id } = useParams();
     const { user } = useAuth();
+    const navigate = useNavigate();
     const axiosInstance = useAxiosInstance();
     const axiosSecure = useAxiosSecure();
 
@@ -35,9 +34,24 @@ const BookService = () => {
 
 
     const handleBookNow = (data) => {
-        console.log(data)
-        axiosSecure.post('/bookings', data)
-            .then(res => console.log(res))
+        const bookingInfo = {
+            client_name: user.name,
+            client_email: user.email,
+            client_number: data.client_number || 'N/A',
+            serviceId: service.service_id,
+            service_name: service.service_name,
+            service_category: data.service_category,
+            booking_cost: data.service_cost,
+            booking_region: data.booking_region || 'N/A',
+            booking_district: data.booking_district || 'N/A',
+            client_massage: data.client_message || 'N/A',
+            booking_date : data.booking_date,
+        }
+        axiosSecure.post('/bookings', bookingInfo)
+            .then(res => {
+                console.log(res);
+                navigate('/dashboard/my-bookings')
+            })
             .catch(err=> console.log(err))
         
     }
@@ -78,7 +92,7 @@ const BookService = () => {
                             {/* Name */}
                         <label>Your Name</label>
                         <input
-                          {...register("name", { required: true })}
+                          {...register("client_name", { required: true })}
                           className="w-full py-2 px-4 border border-gray-400 focus:outline-primary rounded-sm"
                           type="text"
                             placeholder="your name"
@@ -88,7 +102,7 @@ const BookService = () => {
                             {/* Email */}
                         <label>Your Email</label>
                         <input
-                          {...register("email", { required: true })}
+                          {...register("client_email", { required: true })}
                           className="w-full py-2 px-4 border border-gray-400 focus:outline-primary rounded-sm"
                           type="text"
                             placeholder="your name"
@@ -97,7 +111,7 @@ const BookService = () => {
                             />
                         {/* Cost */}
                         <input
-                          {...register("cost", { required: true })}
+                          {...register("service_cost", { required: true })}
                           className="w-full py-2 px-4 border border-gray-400 focus:outline-primary rounded-sm"
                           type="text"
                             placeholder="your name"
@@ -110,7 +124,6 @@ const BookService = () => {
                             
                             <button type='submit' className='transition duration-300 py-1.5 md:py-2 px-2 md:px-4 text-md md:text-[16px] rounded-sm border-2 border-primary hover:bg-primary bg-transparent hover:text-base-200 cursor-pointer'>Confirm Booking</button>
                        
-
                         </form>
                         
                         <div>

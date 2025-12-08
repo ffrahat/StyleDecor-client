@@ -12,8 +12,8 @@ import ServiceDetails from '../Pages/Services/ServiceDetails';
 import PrivateRouter from './PrivateRouter';
 import BookService from '../Pages/Services/BookService';
 import DashboardLayout from '../Layouts/DashboardLayout';
-import { Component } from 'lucide-react';
-import MyBooking from '../Pages/Dashboard/MyBooking/MyBooking';
+import MyBookings from '../Pages/Dashboard/MyBookings/MyBookings';
+
 
 
 
@@ -65,7 +65,7 @@ const router = createBrowserRouter([
         children: [
             {
                 path: 'my-bookings',
-                element: <MyBooking />
+                element: <MyBookings />
             }
         ]
     }
