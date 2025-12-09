@@ -12,13 +12,16 @@ const DecoratorApplications = () => {
       .then(res => {
       console.log(res)
       })
-    .catch(err=> console.log(err))
+    .catch(err=> console.log(err)) // NOt ok
   };
+
+  
 
   return (
     <div className="max-w-3xl mx-auto px-2 md:px-6 py-5 md:py-12">
       <h1 className="text-2xl md:text-4xl font-semibold text-gray-800 mb-8 text-center">
         Decorator <span className="text-primary">Application</span>
+
       </h1>
     <span className='block h-1 mx-auto w-10 bg-secondary -mt-4 mb-5'></span>
       <form
