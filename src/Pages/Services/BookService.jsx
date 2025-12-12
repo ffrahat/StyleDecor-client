@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import useAxiosInstance from '../../Hooks/useAxiosInstance';
 import useAxiosSecure from '../../Hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import useAuth from '../../Hooks/useAuth';
 import ScreenLoading from '../../Components/Animation/ScreenLoading/ScreenLoading';
 import MySection from '../../Layouts/MySection';
@@ -17,7 +17,7 @@ const BookService = () => {
   const axiosInstance = useAxiosInstance();
   const axiosSecure = useAxiosSecure();
 
-  const { data: service = {}, isLoading } = useQuery({
+  const { data: service = {}, isLoading: serviceLoading } = useQuery({
     queryKey: ['service', id],
     queryFn: async () => {
       const res = await axiosInstance.get(`/services/${id}`);
@@ -25,9 +25,31 @@ const BookService = () => {
     }
   });
 
-  const { register, handleSubmit, formState: {errors} } = useForm();
+  const { data: serviceCenters = [], isLoading: centersLoading } = useQuery({
+    queryKey: ['coverages'],
+    queryFn: async () => {
+      const res = await axiosInstance.get('/coverages');
+      return res.data;
+    }
+  });
 
-  if (isLoading) return <ScreenLoading />;
+  const { register, handleSubmit, control, formState: { errors } } = useForm();
+
+  // Watch selected region for dynamic district select
+  const selectedRegion = useWatch({ control, name: 'booking_region' });
+
+  // Get unique regions
+  const regions = [...new Set(serviceCenters.map(c => c.region))];
+
+  // Get districts based on selected region
+  const districtsByRegion = (region) => {
+    if (!region) return [];
+    return serviceCenters
+      .filter(c => c.region === region)
+      .map(c => c.district);
+  };
+
+  if (serviceLoading || centersLoading) return <ScreenLoading />;
 
   const handleBookNow = (data) => {
     const bookingInfo = {
@@ -46,7 +68,10 @@ const BookService = () => {
 
     axiosSecure
       .post('/bookings', bookingInfo)
-      .then(() => navigate('/dashboard/my-bookings'))
+      .then((res) => {
+        console.log(res);
+        navigate('/dashboard/my-bookings');
+      })
       .catch(err => console.log(err));
   };
 
@@ -117,17 +142,47 @@ const BookService = () => {
             {/* Booking Date */}
             <div className="flex items-center gap-2">
               <Calendar className="text-primary w-5 h-5" />
-             <input
+              <input
                 {...register('booking_date', { required: 'Please select a date.' })}
                 type="date"
                 className="flex-1 py-2 px-3 border border-gray-300 rounded-md"
-                />
+              />
             </div>
-                      
-                      {/* Error message */}
-                {errors.booking_date && (
-                <p className="text-red-500 block -mt-2">{errors.booking_date.message}</p>
-                )}
+            {errors.booking_date && (
+              <p className="text-red-500 block -mt-2">{errors.booking_date.message}</p>
+            )}
+
+            {/* Region Select */}
+            <div>
+              <label className="block text-sm mb-1 font-semibold">Select Region</label>
+              <select
+                {...register('booking_region', { required: true })}
+                defaultValue=""
+                className="select bg-base-200 w-full"
+              >
+                <option value="" disabled>Select Region</option>
+                {regions.map((r, i) => (
+                  <option key={i} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* District Select */}
+            <div>
+              <label className="block text-sm mb-1 font-semibold">Select District</label>
+              <select
+                {...register('booking_district', { required: true })}
+                defaultValue=""
+                className="select bg-base-200 w-full"
+              >
+                <option value="" disabled>Select District</option>
+                {selectedRegion &&
+                  districtsByRegion(selectedRegion).map((d, i) => (
+                    <option key={i} value={d}>{d}</option>
+                  ))
+                }
+              </select>
+            </div>
 
             {/* Optional Message */}
             <div className="flex flex-col">

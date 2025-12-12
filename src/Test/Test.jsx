@@ -1,6 +1,7 @@
 import React from 'react';
 import DecoratorApplications from '../Pages/DecoratorApplications/DecoratorApplications';
-import AddServiceForm from '../Pages/Dashboard/AddServicesForm/AddServicesForm';
+import AddServiceForm from '../Pages/Dashboard/AdminPages/AddServicesForm';
+import DashboardLayout2 from '../Layouts/MyLay';
 
 
 
@@ -9,7 +10,6 @@ const Test = () => {
         <>
             ok
             <DecoratorApplications></DecoratorApplications>
-            <AddServiceForm></AddServiceForm>
         </>
     );
 };

@@ -15,8 +15,8 @@ const Hero = () => {
   const banners = [banner1img, banner2img, banner3img];
   const navigate = useNavigate();
   return (
-    <section className="w-full px-2 md:px-6 max-w-7xl mx-auto h-screen overflow-hidden flex flex-col">
-          <div className="h-full md:h-auto rounded-2xl ">
+    <section className="w-full md:px-6 max-w-7xl mx-auto h-[90vh] md:h-screen overflow-x-hidden flex flex-col">
+          <div className="h-full md:h-auto rounded-2xl hidden md:block ">
               <Swiper
         pagination={{
           dynamicBullets: true,
@@ -44,49 +44,17 @@ const Hero = () => {
           </Swiper>
       </div>
           
-          {/* Text Overlay  mobile*/}
-  <div className="absolute md:hidden inset-0 z-20 flex items-center px-6 md:px-12">
-    <div className="max-w-xl text-white space-y-5">
-      <h1 className="text-4xl font-bold text-base-200 leading-tight">
-        Interior Design
-        <span className="block text-primary">Solution</span>
-      </h1>
-
-      <p className="mt-4 text-lg">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore,
-        vero ab id nulla consequuntur atque.
-      </p>
-
-      <button onClick={()=> navigate('/services')} className="btn btn-primary mt-6">Book Decoration Service</button>
-    </div>
-          </div>
+          
           
 
           {/* Text Overlay PC */}
       <div
-        initial={{
-          x:-200
-        }}
-        animate={{
-          x:0
-        }}
-        transition={{
-          duration:0.8, ease: "easeOut"
-        }}
-        className="flex-1 z-20 hidden md:flex items-center w-full justify-between  bg-white/70 rounded-xl  p-4 md:p-6">
+        className="flex-1 h-[90vh] md:h-auto z-20 flex flex-col-reverse md:flex-row items-center w-full justify-between md:justify-between  bg-white/70 rounded-xl pt-10 md:pt-0 pb-35 md:pb-0 md:p-6 gap-20">
   {/* Left Side Text */}
         <motion.div
-          initial={{
-          x:-200
-        }}
-        animate={{
-          x:0
-        }}
-        transition={{
-          duration:0.8, ease: "easeOut"
-        }}
-          className="text-gray-900 space-y-6 max-w-lg">
-    <h1 className="text-5xl font-extrabold leading-snug tracking-tight">
+          
+          className="text-gray-900 p-4 md:p-0 space-y-6 max-w-lg">
+    <h1 className="text-5xl font-extrabold leading-snug tracking-tight ">
       Interior Design
       <span className="block text-primary">Solution</span>
     </h1>
@@ -112,17 +80,35 @@ const Hero = () => {
 
   {/* Right Side Image */}
         <motion.div
-          initial={{
-          x: 200
+          className="w-full flex justify-center min-h-[350px] md:justify-end overflow-x-hidden md:rounded-xl ">
+          
+          <Swiper
+        pagination={{
+          dynamicBullets: true,
+          clickable: true,
         }}
-        animate={{
-          x:0
+              loop={true}
+              autoplay={{
+          delay: 2500,
+          disableOnInteraction: false,
         }}
-        transition={{
-          duration:0.8, ease: "easeOut"
-        }}
-          className="w-full flex justify-end overflow-hidden rounded-xl">
-    <img className="w-full max-w-md rounded-xl shadow-xl cursor-pointer border border-primary/40 transform transition duration-300 hover:scale-105" src={banner1img} alt="Interior Banner" />
+        modules={[Pagination, Autoplay]}
+        className="mySwiper h-[350px] relative  md:rounded-2xl"
+      >
+        {banners.map((banner, i) => (
+          <SwiperSlide className="" key={i}>
+            <img
+              className="h-full mx-auto w-full object-cover md:rounded-2xl"
+              src={banner}
+              alt=""
+                />
+          </SwiperSlide>
+        ))}
+              
+              
+          </Swiper>
+
+    
   </motion.div>
 </div>
 

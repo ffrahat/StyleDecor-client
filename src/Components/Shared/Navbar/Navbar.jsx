@@ -27,6 +27,9 @@ const Navbar = () => {
       <li>
         <MyLink to="/about">About</MyLink>
       </li>
+      <li>
+        <MyLink to="/decorator-apply">Apply For Decorator</MyLink>
+      </li>
     </>
   );
 

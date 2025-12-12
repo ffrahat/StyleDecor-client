@@ -1,4 +1,4 @@
-import { FilePlus, Handbag, UserPen, Users } from 'lucide-react';
+import { BrickWallShield, CircleDollarSign, Command, FilePlus, Handbag, ShieldUser, UserPen, Users } from 'lucide-react';
 import React from 'react';
 import { Link, Outlet } from 'react-router';
 
@@ -53,14 +53,7 @@ const DashboardLayout = () => {
           </Link>
               </li>
               
-              {/* user managment */}
-              <li>
-          <Link to='/dashboard/users-mangement' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="User Management">
-            {/* Home icon */}
-           <Users size={20} />
-            <span className="is-drawer-close:hidden">Users Managment</span>
-          </Link>
-        </li>
+              
               {/* My Profile */}
               <li>
           <Link to='/dashboard/my-profile' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Profile">
@@ -69,14 +62,80 @@ const DashboardLayout = () => {
             <span className="is-drawer-close:hidden">My Profile</span>
           </Link>
         </li>
+              
+
+
+
+
+              {/* Admin And decoratos pages */}
+
+              {/* admin */}
+
+              {/* Manage users */}
+              <li>
+          <Link to='/dashboard/manage-users' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Users">
+            {/* Home icon */}
+           <Users size={20} />
+            <span className="is-drawer-close:hidden">Manage Users</span>
+          </Link>
+        </li>
+
               {/* Add Services */}
               <li>
-          <Link to='/dashboard/add-services' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Add Services">
-            {/* servoce */}
+          <Link to='/dashboard/add-new-service' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Add Services">
+            {/* servisce */}
            <FilePlus size={20} />
             <span className="is-drawer-close:hidden">Add Serices</span>
           </Link>
-        </li>
+              </li>
+              {/* manage Services */}
+              <li>
+          <Link to='/dashboard/manage-services' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Services">
+            {/* servisce */}
+           <BrickWallShield size={20} />
+            <span className="is-drawer-close:hidden">Manage Services</span>
+          </Link>
+              </li>
+        
+              
+              {/* Manage Bookings */}
+              <li>
+          <Link to='/dashboard/manage-bookings' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Bookings">
+            {/* servisce */}
+           <Command size={20} />
+            <span className="is-drawer-close:hidden">Manage Bookings</span>
+          </Link>
+              </li>
+              {/* Manage Decorators */}
+              <li>
+          <Link to='/dashboard/manage-decorators' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Manage Decorators">
+            {/* servisce */}
+           <ShieldUser size={20} />
+            <span className="is-drawer-close:hidden">Manage Decorators</span>
+          </Link>
+              </li>
+
+
+              {/* Decorators */}
+
+              {/* earnings-summery */}
+              <li>
+          <Link to='/dashboard/earnings-summery' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="earnings-summery">
+            {/* servisce */}
+           <CircleDollarSign size={20} />
+            <span className="is-drawer-close:hidden">Earnings Summery</span>
+          </Link>
+              </li>
+              {/* MyAssingedProject */}
+              <li>
+          <Link to='/dashboard/earnings-summery' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Assinged Project">
+            {/* servisce */}
+           <FilePlus size={20} />
+            <span className="is-drawer-close:hidden">My Assinged Project</span>
+          </Link>
+              </li>
+              
+
       </ul>
     </div>
   </div>

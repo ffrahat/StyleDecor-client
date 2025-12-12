@@ -23,7 +23,7 @@ const SignUp = () => {
       .then(() => {
         // Get main IMg data from the form
         const profileImg = data.imageUrl[0];
-
+        
         // Store the img
         const formData = new FormData();
         formData.append("image", profileImg);

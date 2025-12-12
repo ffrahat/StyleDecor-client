@@ -3,7 +3,16 @@ import TransparentBtn from "../../../Components/UI/TransparentBtn/TransparentBtn
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAuth from "../../../Hooks/useAuth";
-import { Calendar, XCircle, CheckCircle, HandCoins } from "lucide-react";
+import {
+  Calendar,
+  XCircle,
+  CheckCircle,
+  HandCoins,
+  Trash,
+  Delete,
+  Trash2,
+  SquarePen,
+} from "lucide-react";
 import { FaBangladeshiTakaSign } from "react-icons/fa6";
 import ScreenLoading from "../../../Components/Animation/ScreenLoading/ScreenLoading";
 import Swal from "sweetalert2";
@@ -11,7 +20,11 @@ import Swal from "sweetalert2";
 const MyBookings = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-  const { data: myBookings = [], isLoading, refetch } = useQuery({
+  const {
+    data: myBookings = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["my-bookings"],
     queryFn: async () => {
       const res = await axiosSecure.get(`/my-bookings?email=${user.email}`);
@@ -19,60 +32,87 @@ const MyBookings = () => {
     },
   });
 
-
   const handlePayment = (id, booking_id) => {
     const paymentInfo = {
       serviceId: id,
       email: user.email,
-      booking_id: booking_id
-    }
-    axiosSecure.post('/create-checkout-session', paymentInfo)
-      .then(res => {
-        window.location.assign(res.data.url)
+      booking_id: booking_id,
+    };
+    axiosSecure
+      .post("/create-checkout-session", paymentInfo)
+      .then((res) => {
+        window.location.assign(res.data.url);
       })
-      .catch(err=> console.log(err))
-  }
+      .catch((err) => console.log(err));
+  };
 
-  console.log(myBookings)
-
-
+  console.log(myBookings);
 
   // Cancel BOkking
   const handleCancelBooking = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able booked this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Cancel!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosSecure
+          .patch(`/cancel-booking?cancel_id=${id}`)
+          .then(() => {
+            Swal.fire({
+              title: "Cancelled!",
+              text: "Your service has been cencelled.",
+              icon: "success",
+            });
+            refetch();
+          })
+          .catch((err) => console.log(err));
+      }
+    });
+  };
+
+
+  // Delette booking
+  const handleDeleteBooking = id => {
 
 
     Swal.fire({
   title: "Are you sure?",
-  text: "You won't be able booked this!",
+  text: "You won't be able to revert this!",
   icon: "warning",
   showCancelButton: true,
   confirmButtonColor: "#3085d6",
   cancelButtonColor: "#d33",
-  confirmButtonText: "Yes, Cancel!"
+  confirmButtonText: "Yes, delete it!"
 }).then((result) => {
   if (result.isConfirmed) {
-    
-    axiosSecure.patch(`/cancel-booking?cancel_id=${id}`)
-      .then(() => {
+
+    // Crud operations
+    axiosSecure.delete(`/my-bookings/${id}/delete`)
+      .then(res => {
+        if (res.data.deletedCount) {
+          refetch();
         Swal.fire({
-      title: "Cancelled!",
-      text: "Your service has been cencelled.",
+      title: "Deleted!",
+      text: "Your booking has been deleted.",
       icon: "success"
-    });
-        refetch();
-      })
-      .catch(err=> console.log(err))
+      });
+      }
+    })
+
+
 
     
   }
 });
 
+
     
   }
-
-
-
-
 
   if (isLoading) {
     return <ScreenLoading />;
@@ -80,11 +120,15 @@ const MyBookings = () => {
 
   return (
     <div className=" md:p-8 ">
-      <div className='w-full mb-9'>
-                    <p className='text-center uppercase font-semibold text-gray-500 leading-snug'>My All</p>
-        <h1 className='text-center text-4xl font-semibold'>Bookings ({myBookings.length})</h1>
-                    <span className='block h-1 mx-auto mt-3 w-10 bg-secondary'></span>
-                </div>
+      <div className="w-full mb-9">
+        <p className="text-center uppercase font-semibold text-gray-500 leading-snug">
+          My All
+        </p>
+        <h1 className="text-center text-4xl font-semibold">
+          Bookings History ({myBookings.length})
+        </h1>
+        <span className="block h-1 mx-auto mt-3 w-10 bg-secondary"></span>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 rounded-lg border border-gray-200">
@@ -126,8 +170,6 @@ const MyBookings = () => {
                   </p>
                 </td>
 
-              
-
                 {/* Booking Date and Cost */}
                 <td className="px-2 py-3 text-gray-600 whitespace-nowrap space-y-2">
                   <div className="flex items-center gap-2">
@@ -136,60 +178,83 @@ const MyBookings = () => {
                   </div>
 
                   <div className="flex items-center gap-2 text-secondary mt-1 font-semibold">
-                    <FaBangladeshiTakaSign size={15} /> {booking.booking_cost} BDT
+                    <FaBangladeshiTakaSign size={15} /> {booking.booking_cost}{" "}
+                    BDT
                   </div>
                 </td>
 
-                  {/* Payment */}
+                {/* Payment */}
                 <td className="px-4 py-3">
-                  {booking.payment_status === "paid" ? (
+                  {booking.service_status === "cancelled" ? (
+                    <span className="px-4 py-1.5 rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
+                      {booking.service_status}
+                    </span>
+                  ) : booking.payment_status === "paid" ? (
                     <span className="flex items-center gap-1 text-green-600 font-medium">
                       <CheckCircle size={16} /> Paid
                     </span>
                   ) : (
-                    <button onClick={()=>handlePayment(booking.serviceId, booking._id)} className="flex gap-1 transition duration-300 py-1.5 md:py-2 px-2 md:px-4 rounded-sm border-2 border-primary text-sm hover:bg-primary bg-transparent hover:text-base-200 cursor-pointer ">
+                    <button
+                      onClick={() =>
+                        handlePayment(booking.serviceId, booking._id)
+                      }
+                      className="flex gap-1 transition duration-300 py-1.5 md:py-2 px-2 md:px-4 rounded-sm border-2 border-primary text-sm hover:bg-primary bg-transparent hover:text-base-200 cursor-pointer "
+                    >
                       {" "}
                       <HandCoins size={18} /> Pay Now{" "}
                     </button>
                   )}
                 </td>
 
-
-
                 {/* Service Status */}
                 <td className="px-4 py-3">
-                  {booking.service_status === 'cancelled' ? 
+                  {booking.service_status === "cancelled" ? (
                     <span className="px-4 py-1.5 rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
                       {booking.service_status}
-                    </span> 
-                    :
-                    
-                    booking.service_status ? 
+                    </span>
+                  ) : booking.service_status ? (
                     <span className="px-4 py-1.5 rounded-full text-white text-sm font-medium bg-green-500 capitalize">
                       {booking.service_status}
-                    </span> 
-                   :
-                    
-                    
+                    </span>
+                  ) : (
                     <span className="px-4 py-1.5 rounded-full text-white text-sm font-medium bg-gray-400">
                       Pending
                     </span>
-                  }
+                  )}
                 </td>
 
                 {/* Actions */}
-                <td className="px-4 py-3">
-
-                  {booking.service_status === 'cancelled' ?
+                <td className="px-4 py-3 flex gap-3 items-center">
+                  {booking?.service_status === "cancelled" ? (
                     <span className="px-4 py-1.5 cursor-not-allowed rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
-                      {booking.service_status}
-                    </span> :
-                    <button onClick={()=> handleCancelBooking(booking._id)} className="flex items-center gap-1 btn btn-sm btn-error      text-base-200">
-                    <XCircle size={16} /> Cancel
+                      {booking?.service_status}
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleCancelBooking(booking._id)}
+                      className="flex items-center gap-1 btn btn-sm btn-error      text-base-200"
+                    >
+                      <XCircle size={16} /> Cancel
                     </button>
-                  }
+                  )}
 
-                  
+                  {/* delete */}
+                  <button
+                    onClick={() => handleDeleteBooking(booking._id)}
+                    className="p-2 cursor-pointer rounded bg-red-300 text-white"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+
+                  {/* edit */}
+                  <button
+                    
+                    className="p-2 cursor-pointer rounded bg-primary text-white"
+                  >
+                    <SquarePen size={18} />
+                  </button>
+
+
                 </td>
               </tr>
             ))}
