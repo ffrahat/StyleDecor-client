@@ -5,8 +5,10 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosInstance from "../../Hooks/useAxiosInstance";
 import Swal from "sweetalert2";
+import useAuth from "../../Hooks/useAuth";
 
 const DecoratorApplications = () => {
+  const { user } = useAuth();
   const { register, handleSubmit, control, reset } = useForm();
   const axiosSecure = useAxiosSecure();
   const axiosInstance = useAxiosInstance();
@@ -77,6 +79,8 @@ const DecoratorApplications = () => {
         <div className="flex items-center gap-3 border-b border-gray-200 py-2">
           <User className="text-primary w-5 h-5" />
           <input
+            value={user.displayName}
+            readOnly
             type="text"
             placeholder="Name"
             {...register("name")}
@@ -89,6 +93,8 @@ const DecoratorApplications = () => {
         <div className="flex items-center gap-3 border-b border-gray-200 py-2">
           <Mail className="text-primary w-5 h-5" />
           <input
+            value={user.email}
+            readOnly
             type="email"
             placeholder="Email"
             {...register("email")}

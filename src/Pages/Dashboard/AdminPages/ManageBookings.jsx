@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useRef, useState } from "react";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import { motion } from "framer-motion";
-import useRole from "../../../Hooks/useRole";
 
 const statusColors = {
   paid: "bg-green-100 text-green-600",
@@ -12,9 +11,10 @@ const statusColors = {
 
 const ManageBookings = () => {
   const axiosSecure = useAxiosSecure();
-  const modalRef = useRef()
+  const modalRef = useRef();
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const [sort, setSort] = useState("");
-  const { data: bookings = [] } = useQuery({
+  const { data: bookings = [], refetch: decRefetch } = useQuery({
     queryKey: ["bookings", sort],
     queryFn: async () => {
       const res = await axiosSecure.get(`/bookings?sort=${sort}`);
@@ -22,20 +22,46 @@ const ManageBookings = () => {
     },
   });
 
+  const handleFindDecorators = (booking) => {
+    modalRef.current.showModal();
+    setSelectedBooking(booking);
+  };
 
-  const handleFindDecorators = () => {
-    modalRef.current.showModal()
+  console.log('dis', selectedBooking)
+
+  const { data: decorators = [] } = useQuery({
+    queryKey: ["decorators", selectedBooking],
+    queryFn: async () => {
+      const res = await axiosSecure(
+        `/decorators?district=${selectedBooking.booking_district}&work_status=available&application_status=approved`
+      );
+      return res.data;
+    },
+  });
+
+  const handleAssignDecorators = (decorator) => {
+  
+    axiosSecure.patch(`/assign-decorator?booking_id=${selectedBooking._id}`, decorator)
+      .then(res => {
+        decRefetch();
+      console.log(res)
+    })
   }
+
   return (
     <div className="p-4">
       <h1 className="text-xl md:text-2xl font-semibold mb-4 flex items-center md:gap-10 justify-between ">
         Manage Bookings ({bookings.length})
         <div className="border border-gray-300">
-          <select onChange={e=> setSort(e.target.value)} defaultValue="" className="select select-ghost w-[150px] ">
+          <select
+            onChange={(e) => setSort(e.target.value)}
+            defaultValue=""
+            className="select select-ghost w-[150px] "
+          >
             <option disabled={true}>Sort By</option>
             <option value="">All</option>
             <option value="service_status=cancelled">Cancelled</option>
-            <option value="payment_status=paid">Paid</option>
+            <option value="payment_status=paid">Pending</option>
           </select>
         </div>
       </h1>
@@ -75,8 +101,8 @@ const ManageBookings = () => {
                     : "text-green-400 bg-green-50"
                 }`}
               >
-                {booking.service_status}
-              </span>
+                {booking.service_status} 
+               </span> <span className="w-full inline-block text-green-400 mt-1"> <span className="text-base-content">Decorator : </span> {booking?.decorator_name || "N/A"}</span>
             </p>
 
             {/* Divider */}
@@ -89,8 +115,8 @@ const ManageBookings = () => {
                 {booking.client_email}
               </p>
               <p>
-                <span className="font-medium">Phone:</span>{" "}
-                {booking.client_number}
+                <span className="font-medium">District</span>{" "}
+                {booking.booking_district}
               </p>
               <p>
                 <span className="font-medium">Category:</span>{" "}
@@ -106,53 +132,78 @@ const ManageBookings = () => {
             <div className="mt-4 flex justify-between items-center">
               <p className="text-xs text-gray-500">
                 Created: {booking.created_At.slice(0, 10)}
-                    </p>
+              </p>
+
+              {booking?.service_status === "cancelled" ? 
+                <span className="px-4 py-1.5 cursor-not-allowed rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
+                  {booking?.service_status}
+                </span>
+
+
+               : booking?.payment_status != "paid" ? 
+                <span className="px-4 py-1.5 cursor-not-allowed rounded-full text-base-content text-sm font-medium bg-yellow-200 capitalize">
+                  Not Paid
+                  </span>
+
+                  
+               : booking?.service_status === "wait_for_assign" ? 
+                
+                <button
+                  onClick={() => handleFindDecorators(booking)}
+                  className="px-3 border border-blue-600 py-2 cursor-pointer hover:bg-transparent text-sm bg-blue-600 text-white rounded-lg hover:text-blue-600"
+                >
+                  Find Decorators
+                    </button> :
                     
-                    {
-                        booking?.service_status === 'cancelled' ?
-                            
-                            <span className="px-4 py-1.5 cursor-not-allowed rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
+                    <span className="px-4 py-1.5 cursor-not-allowed rounded-full text-sm font-medium text-green-400 capitalize">
                       {booking?.service_status}
-                    </span>
-                            
-                            :
-
-                            booking?.payment_status != 'paid' ? 
-<span className="px-4 py-1.5 cursor-not-allowed rounded-full text-base-content text-sm font-medium bg-yellow-200 capitalize">
-                      Not Paid
-                    </span> :
-                                
-                            <button onClick={()=> handleFindDecorators()} className="px-3 border border-blue-600 py-2 cursor-pointer hover:bg-transparent text-sm bg-blue-600 text-white rounded-lg hover:text-blue-600">
-                Find Decorators
-              </button>
+                  </span>
+                    
 
 
-                    }
-              
+              }
             </div>
           </motion.div>
         ))}
       </div>
 
-
-      {/* Open the modal using document.getElementById('ID').showModal() method */}
-<button className="btn" onClick={()=>document.getElementById('my_modal_5').showModal()}>open modal</button>
-<dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
-  <div className="modal-box">
-    <h3 className="font-bold text-lg">Hello!</h3>
-    <p className="py-4">Press ESC key or click the button below to close</p>
-    <div className="modal-action">
-      <form method="dialog">
-        {/* if there is a button in form, it will close the modal */}
-        <button className="btn">Close</button>
-      </form>
-    </div>
-  </div>
-</dialog>
-
-
-
-
+      <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Hello!</h3>
+          <p className="py-4">Decorators : {decorators.length}</p>
+          <div className="overflow-x-auto">
+            <table className="table">
+              {/* head */}
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>District</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {decorators.map((decorator, i ) => (
+                  <tr key={decorator._id}>
+                    <th>{i + 1}</th>
+                    <td>{decorator.name}</td>
+                    <td>{decorator.district}</td>
+                    <td>
+                      <button onClick={()=> handleAssignDecorators(decorator)} className="btn">Assign Decorators</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="modal-action">
+            <form method="dialog">
+              {/* if there is a button in form, it will close the modal */}
+              <button className="btn">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 };

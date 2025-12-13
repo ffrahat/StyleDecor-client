@@ -1,5 +1,4 @@
 import React from "react";
-import TransparentBtn from "../../../Components/UI/TransparentBtn/TransparentBtn";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAuth from "../../../Hooks/useAuth";
@@ -8,8 +7,6 @@ import {
   XCircle,
   CheckCircle,
   HandCoins,
-  Trash,
-  Delete,
   Trash2,
   SquarePen,
 } from "lucide-react";
@@ -20,6 +17,7 @@ import Swal from "sweetalert2";
 const MyBookings = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+
   const {
     data: myBookings = [],
     isLoading,
@@ -33,161 +31,121 @@ const MyBookings = () => {
   });
 
   const handlePayment = (id, booking_id) => {
-    const paymentInfo = {
-      serviceId: id,
-      email: user.email,
-      booking_id: booking_id,
-    };
     axiosSecure
-      .post("/create-checkout-session", paymentInfo)
-      .then((res) => {
-        window.location.assign(res.data.url);
+      .post("/create-checkout-session", {
+        serviceId: id,
+        email: user.email,
+        booking_id,
       })
-      .catch((err) => console.log(err));
+      .then((res) => window.location.assign(res.data.url));
   };
 
-  console.log(myBookings);
-
-  // Cancel BOkking
   const handleCancelBooking = (id) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able booked this!",
+      title: "Cancel booking?",
+      text: "This action cannot be undone",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Cancel!",
+      confirmButtonText: "Yes, Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosSecure
-          .patch(`/cancel-booking?cancel_id=${id}`)
-          .then(() => {
-            Swal.fire({
-              title: "Cancelled!",
-              text: "Your service has been cencelled.",
-              icon: "success",
-            });
-            refetch();
-          })
-          .catch((err) => console.log(err));
+        axiosSecure.patch(`/cancel-booking?cancel_id=${id}`).then(() => {
+          refetch();
+          Swal.fire("Cancelled!", "Your booking has been cancelled.", "success");
+        });
       }
     });
   };
 
-
-  // Delette booking
-  const handleDeleteBooking = id => {
-
-
+  const handleDeleteBooking = (id) => {
     Swal.fire({
-  title: "Are you sure?",
-  text: "You won't be able to revert this!",
-  icon: "warning",
-  showCancelButton: true,
-  confirmButtonColor: "#3085d6",
-  cancelButtonColor: "#d33",
-  confirmButtonText: "Yes, delete it!"
-}).then((result) => {
-  if (result.isConfirmed) {
-
-    // Crud operations
-    axiosSecure.delete(`/my-bookings/${id}/delete`)
-      .then(res => {
-        if (res.data.deletedCount) {
-          refetch();
-        Swal.fire({
-      title: "Deleted!",
-      text: "Your booking has been deleted.",
-      icon: "success"
-      });
+      title: "Delete booking?",
+      text: "This will permanently remove the booking",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Delete",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosSecure.delete(`/my-bookings/${id}/delete`).then((res) => {
+          if (res.data.deletedCount) {
+            refetch();
+            Swal.fire("Deleted!", "Booking removed successfully.", "success");
+          }
+        });
       }
-    })
+    });
+  };
 
-
-
-    
-  }
-});
-
-
-    
-  }
-
-  if (isLoading) {
-    return <ScreenLoading />;
-  }
+  if (isLoading) return <ScreenLoading />;
 
   return (
-    <div className=" md:p-8 ">
-      <div className="w-full mb-9">
-        <p className="text-center uppercase font-semibold text-gray-500 leading-snug">
-          My All
+    <div className="p-6 bg-slate-100 min-h-screen">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <p className="uppercase tracking-wider text-gray-500 font-medium">
+          My Dashboard
         </p>
-        <h1 className="text-center text-4xl font-semibold">
-          Bookings History ({myBookings.length})
+        <h1 className="text-4xl font-bold mt-1">
+          Booking History
+          <span className="text-primary ml-2">({myBookings.length})</span>
         </h1>
-        <span className="block h-1 mx-auto mt-3 w-10 bg-secondary"></span>
+        <div className="h-1 w-14 bg-secondary mx-auto mt-4 rounded"></div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 rounded-lg border border-gray-200">
-          <thead className="bg-secondary/20">
-            <tr>
-              <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                #
-              </th>
-              <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                Service
-              </th>
-              <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                Date & Cost
-              </th>
-              <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                Payment
-              </th>
-              <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                Status
-              </th>
-              <th className="px-4 py-2 text-left font-semibold text-gray-700">
-                Actions
-              </th>
-            </tr>
-          </thead>
-
-          <tbody className="bg-white divide-y divide-gray-200 text-sm">
-            {myBookings.map((booking, i) => (
-              <tr key={booking._id} className="hover:bg-gray-50 transition">
-                <td className="px-4 py-3">{i + 1}</td>
-
-                {/* Service Name + Category */}
-                <td className="px-4 py-2 space-y-2">
-                  <p className="text-primary font-semibold">
+      {/* Cards */}
+      {myBookings.length === 0 ? (
+        <div className="text-center text-gray-500 mt-20">
+          You have no bookings yet.
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          {myBookings.map((booking) => (
+            <div
+              key={booking._id}
+              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition overflow-hidden"
+            >
+              {/* Card Header */}
+              <div className="p-5 border-b border-gray-200 flex justify-between items-start">
+                <div>
+                  <h2 className="text-lg font-semibold text-primary">
                     {booking.service_name}
-                  </p>
-                  <p className="text-gray-500 capitalize text-sm">
+                  </h2>
+                  <p className="text-sm text-gray-500 capitalize">
                     {booking.service_category}
                   </p>
-                </td>
+                </div>
 
-                {/* Booking Date and Cost */}
-                <td className="px-2 py-3 text-gray-600 whitespace-nowrap space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} />{" "}
-                    {new Date(booking.created_At).toLocaleDateString()}
-                  </div>
+                {/* Status Badge */}
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
+                    booking.service_status === "cancelled"
+                      ? "bg-orange-100 text-orange-700"
+                      : booking.service_status
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
+                  {booking.service_status || "pending"}
+                </span>
+              </div>
 
-                  <div className="flex items-center gap-2 text-secondary mt-1 font-semibold">
-                    <FaBangladeshiTakaSign size={15} /> {booking.booking_cost}{" "}
-                    BDT
-                  </div>
-                </td>
+              {/* Card Body */}
+              <div className="p-5 space-y-4 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} />
+                  {new Date(booking.created_At).toLocaleDateString()}
+                </div>
+
+                <div className="flex items-center gap-2 font-semibold text-secondary">
+                  <FaBangladeshiTakaSign size={14} />
+                  {booking.booking_cost} BDT
+                </div>
 
                 {/* Payment */}
-                <td className="px-4 py-3">
+                <div>
                   {booking.service_status === "cancelled" ? (
-                    <span className="px-4 py-1.5 rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
-                      {booking.service_status}
+                    <span className="text-orange-600 font-medium">
+                      Payment Disabled
                     </span>
                   ) : booking.payment_status === "paid" ? (
                     <span className="flex items-center gap-1 text-green-600 font-medium">
@@ -198,77 +156,60 @@ const MyBookings = () => {
                       onClick={() =>
                         handlePayment(booking.serviceId, booking._id)
                       }
-                      className="flex gap-1 transition duration-300 py-1.5 md:py-2 px-2 md:px-4 rounded-sm border-2 border-primary text-sm hover:bg-primary bg-transparent hover:text-base-200 cursor-pointer "
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition"
                     >
-                      {" "}
-                      <HandCoins size={18} /> Pay Now{" "}
+                      <HandCoins size={18} />
+                      Pay Now
                     </button>
                   )}
-                </td>
+                </div>
+              </div>
 
-                {/* Service Status */}
-                <td className="px-4 py-3">
-                  {booking.service_status === "cancelled" ? (
-                    <span className="px-4 py-1.5 rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
-                      {booking.service_status}
-                    </span>
-                  ) : booking.service_status ? (
-                    <span className="px-4 py-1.5 rounded-full text-white text-sm font-medium bg-green-500 capitalize">
-                      {booking.service_status}
-                    </span>
-                  ) : (
-                    <span className="px-4 py-1.5 rounded-full text-white text-sm font-medium bg-gray-400">
-                      Pending
-                    </span>
-                  )}
-                </td>
-
-                {/* Actions */}
-                <td className="px-4 py-3 flex gap-3 items-center">
-                  {booking?.service_status === "cancelled" ? (
-                    <span className="px-4 py-1.5 cursor-not-allowed rounded-full text-base-content text-sm font-medium bg-orange-200 capitalize">
-                      {booking?.service_status}
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => handleCancelBooking(booking._id)}
-                      className="flex items-center gap-1 btn btn-sm btn-error      text-base-200"
-                    >
-                      <XCircle size={16} /> Cancel
-                    </button>
-                  )}
-
-                  {/* delete */}
+              {/* Actions */}
+              <div className="p-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                {booking?.service_status === "cancelled" ? (
+                  <span className="text-sm text-gray-400 cursor-not-allowed">
+                    Cancelled
+                  </span>
+                ) : (booking?.service_status ?? 'planning_phase') === 'planning_phase' || booking.service_status === 'wait_for_assign' ?
+                  
+                  
+                  
                   <button
+                    onClick={() => handleCancelBooking(booking._id)}
+                    className="flex items-center gap-1 text-red-500 hover:text-red-600 font-medium"
+                  >
+                    <XCircle size={16} /> Cancel
+                  </button> :
+                    
+                    <span className="text-sm text-gray-400 cursor-not-allowed">
+                    Unavaiable Cancel
+                  </span>
+
+                }
+
+                <div className="flex gap-3">
+                  {(booking?.service_status ?? 'planning_phase') === 'planning_phase' || booking.service_status === 'wait_for_assign' &&
+                    
+                    <button
                     onClick={() => handleDeleteBooking(booking._id)}
-                    className="p-2 cursor-pointer rounded bg-red-300 text-white"
+                    className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
                   >
                     <Trash2 size={18} />
                   </button>
+                   }
 
-                  {/* edit */}
-                  <button
-                    
-                    className="p-2 cursor-pointer rounded bg-primary text-white"
-                  >
+                  
+
+                  <button className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition">
                     <SquarePen size={18} />
                   </button>
-
-
-                </td>
-              </tr>
-            ))}
-
-            {myBookings.length === 0 && (
-              <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500">
-                  You have no bookings yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
